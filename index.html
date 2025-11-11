@@ -95,6 +95,10 @@
             line-height: 1;
         }
         
+        .d0f {
+            color: #dd00ff;
+        }
+        
         .cursor {
             width: 3px;
             height: 44px;
@@ -183,7 +187,14 @@
         const svg = document.querySelector('.logo-svg');
         const logoText = document.querySelector('.logo-text');
         const cursor = document.querySelector('.cursor');
-        const text = "THRREAD";
+        const text = 'THRREAD';
+        
+        // Map which characters should be purple (index based)
+        const colorMap = {
+            3: true,
+            4: true,
+            6: true
+        };
         
         // Start SVG animation immediately
         setTimeout(() => {
@@ -198,7 +209,12 @@
             let index = 0;
             const typeInterval = setInterval(() => {
                 if (index < text.length) {
-                    logoText.textContent += text[index];
+                    const char = text[index];
+                    if (colorMap[index]) {
+                        logoText.innerHTML += `<span class="d0f">${char}</span>`;
+                    } else {
+                        logoText.innerHTML += char;
+                    }
                     index++;
                 } else {
                     clearInterval(typeInterval);
