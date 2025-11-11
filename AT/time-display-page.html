@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Display</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #000;
+            color: #0fd;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .container {
+            transform: rotate(-90deg);
+            text-align: center;
+        }
+        
+        .time {
+            font-size: 48px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        
+        .ip {
+            font-size: 24px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="time" id="time">--</div>
+        <div class="ip" id="ip">loading ip...</div>
+    </div>
+
+    <script>
+        // Get user's IP address
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('ip').textContent = data.ip;
+            })
+            .catch(err => {
+                document.getElementById('ip').textContent = 'ip unavailable';
+            });
+        
+        // Update time every 10ms for milliseconds display
+        function updateTime() {
+            const now = new Date();
+            
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+            
+            const timeString = `${month}${day}${hours}${minutes}${seconds}${milliseconds}`;
+            
+            document.getElementById('time').textContent = timeString;
+        }
+        
+        updateTime();
+        setInterval(updateTime, 10);
+    </script>
+</body>
+</html>
