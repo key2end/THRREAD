@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kyx</title>
+    <link href="Cutin.ttf" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            color-scheme: none !important;
+        }
+        
+        html {
+            color-scheme: none !important;
+            background: #000000 !important;
+        }
+        
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000000 !important;
+            font-family: Arial, sans-serif;
+            color-scheme: none !important;
+            overflow: hidden;
+            padding: 20px 0;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .star {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            animation: circularMotion 10s linear infinite;
+            opacity: 0;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 1);
+            left: 50%;
+            top: 50%;
+            transform-origin: center;
+        }
+        
+        .star:nth-child(2n) {
+            background: #0fd;
+            box-shadow: 0 0 10px rgba(0, 255, 221, 0.8);
+        }
+        
+        .star:nth-child(3n) {
+            background: #d0f;
+            box-shadow: 0 0 10px rgba(221, 0, 255, 0.8);
+        }
+        
+        @keyframes circularMotion {
+            0% {
+                transform: translate(-250px, 0px);
+                opacity: 0;
+            }
+            5% {
+                opacity: 1;
+            }
+            12.5% {
+                transform: translate(-177px, -177px);
+            }
+            25% {
+                transform: translate(0px, -250px);
+            }
+            37.5% {
+                transform: translate(177px, -177px);
+            }
+            50% {
+                transform: translate(250px, 0px);
+            }
+            62.5% {
+                transform: translate(177px, 177px);
+            }
+            75% {
+                transform: translate(0px, 250px);
+            }
+            87.5% {
+                transform: translate(-177px, 177px);
+            }
+            95% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-250px, 0px);
+                opacity: 0;
+            }
+        }
+        
+        .main-text {
+            font-size: calc((100vw - 22px) / 7 * 2.696);
+            font-weight: 900;
+            font-family: 'Cutin', monospace;
+            background: linear-gradient(45deg, #0fd, #d0f, #0fd, #d0f);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientFlow 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(0, 255, 221, 0.3);
+            z-index: 100;
+            position: relative;
+            text-align: center;
+            letter-spacing: 0;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            line-height: 1.2;
+            width: calc(100vw - 22px);
+            margin: 0 11px;
+            transition: all 0.1s ease;
+            min-height: 1.2em;
+        }
+        
+        @keyframes gradientFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-text {
+                font-size: calc((100vw - 22px) / 7 * 2.696);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="main-text" id="main-text">kyx</div>
+    
+    <script>
+        const targetText = "kyx";
+        const scrambleChars = "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
+        
+        let isUserHolding = false;
+        let scrambleInterval = null;
+        let autoScrambleTimeout = null;
+        
+        const textElement = document.getElementById('main-text');
+        
+        function scrambleText() {
+            let scrambled = "";
+            for (let i = 0; i < targetText.length; i++) {
+                scrambled += scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+            }
+            textElement.textContent = scrambled;
+        }
+        
+        function startScrambling() {
+            if (scrambleInterval) clearInterval(scrambleInterval);
+            scrambleInterval = setInterval(scrambleText, 60);
+        }
+        
+        function stopScrambling() {
+            if (scrambleInterval) {
+                clearInterval(scrambleInterval);
+                scrambleInterval = null;
+            }
+            textElement.textContent = targetText;
+        }
+        
+        function scheduleAutoScramble() {
+            if (autoScrambleTimeout) clearTimeout(autoScrambleTimeout);
+            
+            autoScrambleTimeout = setTimeout(() => {
+                if (!isUserHolding) {
+                    startScrambling();
+                    setTimeout(() => {
+                        if (!isUserHolding) {
+                            stopScrambling();
+                            scheduleAutoScramble();
+                        }
+                    }, 600);
+                }
+            }, 1500);
+        }
+        
+        function handlePress() {
+            isUserHolding = true;
+            if (autoScrambleTimeout) {
+                clearTimeout(autoScrambleTimeout);
+                autoScrambleTimeout = null;
+            }
+            startScrambling();
+        }
+        
+        function handleRelease() {
+            isUserHolding = false;
+            stopScrambling();
+            scheduleAutoScramble();
+        }
+        
+        // Global event listeners
+        document.addEventListener('mousedown', handlePress);
+        document.addEventListener('mouseup', handleRelease);
+        document.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handlePress();
+        });
+        document.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            handleRelease();
+        });
+        
+        // Initialize - intro animation for 1.5s then start auto cycle
+        setTimeout(() => {
+            startScrambling();
+            setTimeout(() => {
+                stopScrambling();
+                scheduleAutoScramble();
+            }, 1500);
+        }, 100);
+        
+        // Stars system
+        function createStar() {
+            const starsContainer = document.getElementById('stars');
+            
+            if (starsContainer.children.length > 50) return;
+            
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.animationDuration = (Math.random() * 6 + 8) + 's';
+            star.style.animationDelay = Math.random() * 2 + 's';
+            
+            const randomX = Math.random() * window.innerWidth;
+            const randomY = Math.random() * window.innerHeight;
+            star.style.left = randomX + 'px';
+            star.style.top = randomY + 'px';
+            
+            starsContainer.appendChild(star);
+            
+            setTimeout(() => {
+                if (star.parentNode) {
+                    star.remove();
+                }
+            }, 12000);
+        }
+        
+        setInterval(createStar, 200);
+        
+        for(let i = 0; i < 30; i++) {
+            setTimeout(createStar, i * 100);
+        }
+    </script>
+</body>
+</html>
