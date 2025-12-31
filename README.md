@@ -1,6 +1,7 @@
 ### IDEAS
 - FRIKE
 - FRIK
+- VSXI
 - XSEZ
 - KYX
 - THRREAD
