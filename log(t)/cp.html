@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Complement</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #0d0d0d;
+            color: #fff;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+        .main-container {
+            display: flex;
+            flex: 1;
+            gap: 40px;
+            align-items: center;
+            justify-content: center;
+        }
+        .circles-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            align-items: center;
+        }
+        .circle-wrapper {
+            text-align: center;
+        }
+        .circle {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+            border: 6px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .circle::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18), transparent 70%);
+            pointer-events: none;
+        }
+        .label {
+            margin-top: 12px;
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        /* Vertical Slider on the RIGHT */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 65vh;
+            min-height: 450px;
+        }
+        .vertical-slider {
+            -webkit-appearance: slider-vertical;
+            writing-mode: bt-lr; /* Chrome/Safari vertical */
+            width: 24px;
+            height: 100%;
+            border-radius: 12px;
+            background: linear-gradient(to top,
+                #f00, #f80, #ff0, #8f0, #0f0,
+                #0f8, #0ff, #08f, #00f, #80f,
+                #f0f, #f08, #f00);
+            outline: none;
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.6);
+        }
+        .vertical-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(255,255,255,0.9),
+                        0 8px 25px rgba(0,0,0,0.7);
+            border: 4px solid #111;
+        }
+        .vertical-slider::-moz-range-thumb {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(255,255,255,0.9),
+                        0 8px 25px rgba(0,0,0,0.7);
+            border: 4px solid #111;
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                flex-direction: column;
+                gap: 50px;
+            }
+            .slider-container {
+                height: 55vh;
+                min-height: 350px;
+            }
+        }
+        @media (max-width: 480px) {
+            header { font-size: 20px; }
+            .circle { width: 180px; height: 180px; font-size: 20px; }
+            .vertical-slider { width: 20px; }
+            .vertical-slider::-webkit-slider-thumb,
+            .vertical-slider::-moz-range-thumb {
+                width: 48px; height: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>Color Complement Generator</header>
+
+    <div class="main-container">
+        <!-- Left: Color Circles -->
+        <div class="circles-container">
+            <div class="circle-wrapper">
+                <div id="primary" class="circle">#FF0000</div>
+                <div class="label">Selected Color</div>
+            </div>
+            <div class="circle-wrapper">
+                <div id="complement" class="circle">#00FFFF</div>
+                <div class="label">Complementary Color</div>
+            </div>
+        </div>
+
+        <!-- Right: Vertical Seek Bar -->
+        <div class="slider-container">
+            <input type="range" min="0" max="359" value="0" orient="vertical" class="vertical-slider" id="hue">
+        </div>
+    </div>
+
+    <script>
+        const primary = document.getElementById('primary');
+        const complement = document.getElementById('complement');
+        const slider = document.getElementById('hue');
+
+        function hslToHex(h) {
+            h = h % 360;
+            const s = 100, l = 50;
+            const c = (1 - Math.abs(2 * (l/100) - 1)) * (s/100);
+            const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+            const m = (l/100) - c/2;
+            let r, g, b;
+
+            if (h < 60) { [r, g, b] = [c, x, 0]; }
+            else if (h < 120) { [r, g, b] = [x, c, 0]; }
+            else if (h < 180) { [r, g, b] = [0, c, x]; }
+            else if (h < 240) { [r, g, b] = [0, x, c]; }
+            else if (h < 300) { [r, g, b] = [x, 0, c]; }
+            else { [r, g, b] = [c, 0, x]; }
+
+            const toHex = v => Math.round((v + m) * 255).toString(16).padStart(2, '0').toUpperCase();
+            return '#' + toHex(r) + toHex(g) + toHex(b);
+        }
+
+        function update(hue) {
+            const hex1 = hslToHex(hue);
+            const hex2 = hslToHex((hue + 180) % 360);
+
+            primary.style.background = hex1;
+            primary.textContent = hex1;
+            complement.style.background = hex2;
+            complement.textContent = hex2;
+
+            const lightText = (hue > 40 && hue < 200) ? '#000' : '#FFF';
+            primary.style.color = lightText;
+            complement.style.color = lightText === '#000' ? '#FFF' : '#000';
+        }
+
+        slider.addEventListener('input', () => {
+            update(parseInt(slider.value));
+        });
+
+        update(0); // Start with red
+    </script>
+</body>
+</html>
